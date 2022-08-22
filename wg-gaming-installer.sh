@@ -132,7 +132,7 @@ function installWireGuard() {
 	elif [[ ${OS} == 'debian' ]]; then
 		apt update
 		apt-get install -y iptables resolvconf qrencode
-		apt-get install -y 
+		apt-get install -y wireguard
 	fi
 
 	# Make sure the directory exists (this does not seem the be the case on fedora)
