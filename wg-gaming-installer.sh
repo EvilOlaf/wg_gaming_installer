@@ -35,7 +35,7 @@ function checkOS() {
 		if [[ ${ID} == "debian" || ${ID} == "raspbian" ]]; then
 			if [[ ${VERSION_ID} -ne 11 ]]; then
 				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 10 Buster"
-				exit 1
+				#exit 1
 			fi
 		elif [[ ${ID} == "ubuntu" ]]; then
 			if [[ ${VERSION_ID%.*} -lt 16 ]]; then
