@@ -40,7 +40,7 @@ function checkOS() {
 			fi
 		fi
 	else
-		echo "Looks like you aren't running this installer on a Debian, or Ubuntu"
+		echo "Unsupported Os"
 		exit 1
 	fi
 }
@@ -53,7 +53,6 @@ function initialCheck() {
 
 function installQuestions() {
 	echo "Welcome to the WireGuard installer!"
-	echo "The git repository is available at: https://github.com/angristan/wireguard-install"
 	echo ""
 	echo "I need to ask you a few questions before starting the setup."
 	echo "You can leave the default options and just press enter if you are ok with them."
@@ -86,17 +85,26 @@ function installQuestions() {
 	done
 
 	# Check if ssh is in range
-	if [[ ${SSH_CLIENT##* } -eq 53 || ${SSH_CLIENT##* } -eq 80 || ${SSH_CLIENT##* } -eq 88 || ${SSH_CLIENT##* } -eq 500 || \
-		${SSH_CLIENT##* } -eq 53 || (${SSH_CLIENT##* } -ge 1023 && ${SSH_CLIENT##* } -le 65000 ) ]]; then
-		read -p "BE ADVISED! SSH Port will be changed from ${SSH_CLIENT##* } to 65432!"
-		sed -i 's/Port\s\+[0-9]\+/Port 65432/' /etc/ssh/sshd_config
+	#if [[ ${SSH_CLIENT##* } -eq 53 || ${SSH_CLIENT##* } -eq 80 || ${SSH_CLIENT##* } -eq 88 || ${SSH_CLIENT##* } -eq 500 || \
+	#	${SSH_CLIENT##* } -eq 53 || (${SSH_CLIENT##* } -ge 1023 && ${SSH_CLIENT##* } -le 65000 ) ]]; then
+	#	read -p "BE ADVISED! SSH Port will be changed from ${SSH_CLIENT##* } to 65432!"
+	#	sed -i 's/Port\s\+[0-9]\+/Port 65432/' /etc/ssh/sshd_config
+	#	# Restart ssh service
+	#	systemctl restart ssh.service
+	#fi
+	
+	
+	# Check if ssh is in range
+	if [[ (${SSH_CLIENT##* } -ge 1 && ${SSH_CLIENT##* } -le 65500 ) ]]; then
+		read -p "BE ADVISED! SSH Port will be changed from ${SSH_CLIENT##* } to 65522!"
+		sed -i 's/Port\s\+[0-9]\+/Port 65522/' /etc/ssh/sshd_config
 		# Restart ssh service
-		systemctl restart ssh.service
+		#systemctl restart ssh.service
 	fi
 
 	# Generate random number within private ports range
-	RANDOM_PORT=$(shuf -i65001-65535 -n1)
-	until [[ ${SERVER_PORT} =~ ^[0-9]+$ && "${SERVER_PORT}" -ge 1 && "${SERVER_PORT}" -le 65535 && ${SERVER_PORT} -ne 65432 ]]; do
+	RANDOM_PORT=$(shuf -i65523-65535 -n1)
+	until [[ ${SERVER_PORT} =~ ^[0-9]+$ && "${SERVER_PORT}" -ge 1 && "${SERVER_PORT}" -le 65535 && ${SERVER_PORT} -ne 65522 ]]; do
 		read -rp "Server's WireGuard port [1-65535]: " -e -i "${RANDOM_PORT}" SERVER_PORT
 	done
 
