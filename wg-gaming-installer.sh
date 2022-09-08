@@ -18,11 +18,7 @@ function checkVirt() {
 	fi
 
 	if [ "$(systemd-detect-virt)" == "lxc" ]; then
-		echo "LXC is not supported (yet)."
-		echo "WireGuard can technically run in an LXC container,"
-		echo "but the kernel module has to be installed on the host,"
-		echo "the container has to be run with some specific parameters"
-		echo "and only the tools need to be installed in the container."
+		echo "LXC is not supported."
 		exit 1
 	fi
 }
@@ -33,8 +29,8 @@ function checkOS() {
 		source /etc/os-release
 		OS="${ID}" # debian or ubuntu
 		if [[ ${ID} == "debian" || ${ID} == "raspbian" ]]; then
-			if [[ ${VERSION_ID} -ne 11 ]]; then
-				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 10 Buster"
+			if [[ ${VERSION_ID} -lt 11 ]]; then
+				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 11 "
 				#exit 1
 			fi
 		elif [[ ${ID} == "ubuntu" ]]; then
