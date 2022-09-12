@@ -29,7 +29,7 @@ For a better gaming experience, the server should be close to your living region
 Supported distributions:
 
 - Ubuntu >= 16.04
-- Debian
+- Debian = 11
 
 ## Usage
 
