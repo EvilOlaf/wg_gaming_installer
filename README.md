@@ -4,9 +4,9 @@
 
 If you are looking for a common WireGuard install script that supports multi-client connections, i.e. multiple devices connect to the VPN at the same time, please visit [this repository](https://github.com/angristan/wireguard-install/) to continue.
 
-The script **Port Forwards** the local port 1-65500` to the corresponding ports on the server side. These ports covered most of the ports used by any games. **Please make sure that there is no other application using these ports on the server, otherwise It will deafen any application that listens to these ports.** I highly suggest running this script on an new empty system. 
+The script **Port Forwards** the local port 1-65500 to the corresponding ports on the server side. These ports covered most of the ports used by any games. **Please make sure that there is no other application using these ports on the server, otherwise It will deafen any application that listens to these ports.** I highly suggest running this script on an new empty system. 
 
-Specifically, the script will move ssh to port `65522` for not losing access to the server after installation.
+Specifically, the script will move ssh to port 65522 for not losing access to the server after installation.
 
 The script supports both IPv4 and IPv6, but its preferred to use ipv4 as connection to the server.
 
