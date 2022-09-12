@@ -48,7 +48,7 @@ Run the script again will give you these options!
 
 
 # Usage
-List of know working vps provider :
+List of know working vps provider :                                                        
 -Hetzner Y       
 -Linode Y            
 -Aruba Y                        
