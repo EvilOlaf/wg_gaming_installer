@@ -45,3 +45,15 @@ It will install WireGuard (kernel module and tools) on the server, configure it,
 ## Stop / Restart / Uninstal
 
 Run the script again will give you these options!
+
+
+# Usage
+List of know working vps provider :
+Hetzner Y
+Linode Y 
+Aruba Y 
+Vultr Y ( with bgp possibilities so you can inport your own ipv6 ) 
+Gamehosting Y  (only kvm ) 
+Seflow Cloud Y 
+Seflow VPS Y 
+Ovh  Y 
