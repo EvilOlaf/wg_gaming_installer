@@ -54,6 +54,6 @@ List of know working vps provider :
 -Aruba Y                        
 -Vultr Y ( with bgp possibilities so you can inport your own ipv6 )                      
 -Gamehosting Y  (only kvm )                             
--Seflow Cloud Y 
--Seflow VPS Y 
--Ovh  Y 
+-Seflow Cloud Y                         
+-Seflow VPS Y                               
+-Ovh  Y                                        
