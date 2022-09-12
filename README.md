@@ -52,7 +52,7 @@ List of know working vps provider :
 -Hetzner Y       
 -Linode Y            
 -Aruba Y                        
--Vultr Y ( with bgp possibilities so you can import your own ipv6 )                      
+-Vultr Y ( with bgp possibilities so you can import your ips )                      
 -Gamehosting Y  (only kvm )                             
 -Seflow Cloud Y                         
 -Seflow VPS Y                               
