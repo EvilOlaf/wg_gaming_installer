@@ -22,15 +22,8 @@ It solves the following scenarios:
 
 2. You play a P2P game like Monster Hunter: World or Overcooked! but your NAT type prevents you from connecting with other players. 
 
-For a better gaming experience, the server should be close to your living region and has a low ping value. You should ping the provider's looking glass datacenter IP first before purchasing a VPS.
+For a better gaming experience, the server should be close to your living region and has a low ping value. You should ping the provider's looking glass datacenter IP first before purchasing a VPS. also look if the ip of the provider are in some blacklist that might impact your navigation.
 
-## For Advance User
-
-The reason why it is full cone is due to the DNAT route rules in the iptables:
-
-
-If the game needs port that is not covered inside, you can modify the postup and postdown script yourself to add a certain port for it.
- 
 ## Requirements
 
 Supported distributions:
