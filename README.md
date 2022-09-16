@@ -1,4 +1,4 @@
-# WireGuard installer for Gaming
+# WireGuard installer for Gaming / having public ip behind cgnat
 
 **This project is a bash script that aims to setup a [WireGuard](https://www.wireguard.com/) VPN that is specified for PERSONAL gaming or torrenting use. It supports only ONE client!**
 
