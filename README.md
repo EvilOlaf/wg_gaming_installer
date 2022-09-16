@@ -6,21 +6,11 @@ If you are looking for a common WireGuard install script that supports multi-cli
 
 The script **Port Forwards** the local port 1-65500 to the corresponding ports on the server side. These ports covered most of the ports used by any games. **Please make sure that there is no other application using these ports on the server, otherwise It will deafen any application that listens to these ports.** I highly suggest running this script on an new empty system. 
 
-Specifically, the script will move ssh to port 65522 for not losing access to the server after installation.
+## The script will move ssh to port 65522 for not losing access to the server after installation.
 
 The script supports both IPv4 and IPv6, but its preferred to use ipv4 as connection to the server.
 
-## NAT Improvement
-
-With this script, you do not need to enable port forwarding on your router, you do not need the DMZ setting. All the magic happens inside Wireguard. Simply speaking: 
-
->The local ports will be forwarded to the server directly.
-
-It solves the following scenarios:
-
-1. You want to host a Minecraft/Terraria, etc. server online and play with your friend, but you cannot figure out how to enable port forwarding on your router, or your ISP just did not give you a public IP address.
-
-2. You play a P2P game like Monster Hunter: World or Overcooked! but your NAT type prevents you from connecting with other players. 
+## Gaming Improvement
 
 For a better gaming experience, the server should be close to your living region and has a low ping value. You should ping the provider's looking glass datacenter IP first before purchasing a VPS. also look if the ip of the provider are in some blacklist that might impact your navigation.
 
@@ -49,7 +39,7 @@ Run the script again will give you these options!
 
 # Usage
 List of know working vps provider :                                                        
--Hetzner Y       
+-Hetzner Y  (routed ipv6 prefix can be delegated to client , so they will have a public ipv6 )       
 -Linode Y            
 -Aruba Y                        
 -Vultr Y ( with bgp possibilities so you can import your ips )                      
