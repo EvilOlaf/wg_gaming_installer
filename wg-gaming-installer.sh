@@ -29,9 +29,9 @@ function checkOS() {
 		source /etc/os-release
 		OS="${ID}" # debian or ubuntu
 		if [[ ${ID} == "debian" || ${ID} == "raspbian" ]]; then
-			if [[ ${VERSION_ID} -lt 11 ]]; then
-				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 11 "
-				#exit 1
+			if [[ ${VERSION_ID} -ne 10 ]] && [[ ${VERSION_ID} -ne 11 ]]; then
+				echo "Your version of Debian (${VERSION_ID}) is not supported. Please use Debian 10 Buster or Debian 11 Bullseye"
+				exit 1
 			fi
 		elif [[ ${ID} == "ubuntu" ]]; then
 			if [[ ${VERSION_ID%.*} -lt 16 ]]; then
@@ -134,9 +134,17 @@ function installWireGuard() {
 		apt-get update
 		apt-get install -y wireguard iptables resolvconf qrencode
 	elif [[ ${OS} == 'debian' ]]; then
-		apt update
+		if [[ ${VERSION_ID} -eq 10 ]]; then
+			if ! grep -rqs "^deb .* buster-backports" /etc/apt/; then
+				echo "deb http://deb.debian.org/debian buster-backports main" >/etc/apt/sources.list.d/backports.list
+			fi
+			apt-get update
+			apt-get install -y -t buster-backports wireguard
+		elif [[ ${VERSION_ID} -eq 11 ]]; then
+			apt-get update
+			apt-get install -y wireguard
+		fi
 		apt-get install -y iptables resolvconf qrencode
-		apt-get install -y wireguard
 	fi
 
 	# Make sure the directory exists (this does not seem the be the case on fedora)
