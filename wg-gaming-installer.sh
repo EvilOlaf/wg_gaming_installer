@@ -83,21 +83,12 @@ function installQuestions() {
 	until [[ ${SERVER_WG_IPV6} =~ ^([a-f0-9]{1,4}:){3,4}: ]]; do
 		read -rp "Server's WireGuard IPv6: " -e -i fd42:42:42::1 SERVER_WG_IPV6
 	done
-
-	# Check if ssh is in range (removed due to change ) 
-	#if [[ ${SSH_CLIENT##* } -eq 53 || ${SSH_CLIENT##* } -eq 80 || ${SSH_CLIENT##* } -eq 88 || ${SSH_CLIENT##* } -eq 500 || \
-	#	${SSH_CLIENT##* } -eq 53 || (${SSH_CLIENT##* } -ge 1023 && ${SSH_CLIENT##* } -le 65000 ) ]]; then
-	#	read -p "BE ADVISED! SSH Port will be changed from ${SSH_CLIENT##* } to 65432!"
-	#	sed -i 's/Port\s\+[0-9]\+/Port 65432/' /etc/ssh/sshd_config
-	#	# Restart ssh service
-	#	systemctl restart ssh.service
-	#fi
 	
 	
 	# Check if ssh is in range
 	if [[ (${SSH_CLIENT##* } -ge 1 && ${SSH_CLIENT##* } -le 65500 ) ]]; then
 		read -p "BE ADVISED! SSH Port will be changed from ${SSH_CLIENT##* } to 65522!"
-		sed -i 's/Port\s\+[0-9]\+/Port 65522/' /etc/ssh/sshd_config
+		sed -i 's/#Port\s\+[0-9]\+/Port 65522/' /etc/ssh/sshd_config
 		# Restart ssh service
 		#systemctl restart ssh.service
 	fi
