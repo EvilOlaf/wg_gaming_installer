@@ -94,9 +94,9 @@ function installQuestions() {
 	fi
 
 	# Generate random number within private ports range
-	RANDOM_PORT=$(shuf -i 65500-65521,65523-65535 -n1)
-	until [[ ${SERVER_PORT} =~ ^[0-9]+$ && "${SERVER_PORT}" -ge 65500 && "${SERVER_PORT}" -le 65535 && ${SERVER_PORT} -ne 65522 ]]; do
-		read -rp "Server's WireGuard port [65500-65535(65522 used by ssh)]: " -e -i "${RANDOM_PORT}" SERVER_PORT
+	RANDOM_PORT=$(shuf -i 65523-65535 -n1)
+	until [[ ${SERVER_PORT} =~ ^[0-9]+$ && "${SERVER_PORT}" -ge 65522 && "${SERVER_PORT}" -le 65535 && ${SERVER_PORT} -ne 65522 ]]; do
+		read -rp "Server's WireGuard port [65523-65535(65522 used by ssh)]: " -e -i "${RANDOM_PORT}" SERVER_PORT
 	done
 
 	# cloudflare and google dns by default
@@ -195,12 +195,12 @@ iptables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
 ip6tables -A FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -j ACCEPT
 ip6tables -A FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 ip6tables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
-# DNAT from 1 to 65500
-iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65500 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65500
-iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65500 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65500
-
-ip6tables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65500 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65500
-ip6tables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65500 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65500" > "/etc/wireguard/add-fullcone-nat.sh"
+# DNAT from 1 to 65500 + ICMP
+iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65521 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65521
+iptables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65521 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65521
+iptables -t nat -A PREROUTING -s 0.0.0.0/0 -d ${SERVER_PUB_IP} -p icmp --icmp-type echo-request -j DNAT --to ${CLIENT_WG_IPV4}
+ip6tables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65521 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65521
+ip6tables -t nat -A PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65521 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65521" > "/etc/wireguard/add-fullcone-nat.sh"
 
 echo "#!/bin/bash
 
@@ -211,11 +211,11 @@ ip6tables -D FORWARD -i ${SERVER_PUB_NIC} -o ${SERVER_WG_NIC} -j ACCEPT
 ip6tables -D FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 ip6tables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
 # DNAT from 53,80,88,500, 1024 to 65000
-iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65500 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65500
-iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65500 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65500
-
-ip6tables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65500 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65500
-ip6tables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65500 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65500" > "/etc/wireguard/rm-fullcone-nat.sh"
+iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65521 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65521
+iptables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65521 -j DNAT --to-destination ${CLIENT_WG_IPV4}:1-65521
+iptables -t nat -D PREROUTING -s 0.0.0.0/0 -d ${SERVER_PUB_IP} -p icmp --icmp-type echo-request -j DNAT --to ${CLIENT_WG_IPV4}
+ip6tables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p udp --dport 1:65521 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65521
+ip6tables -t nat -D PREROUTING -i ${SERVER_PUB_NIC} -p tcp --dport 1:65521 -j DNAT --to-destination [${CLIENT_WG_IPV6}]:1-65521" > "/etc/wireguard/rm-fullcone-nat.sh"
 
 	# Add exec permission
 	chmod u+x /etc/wireguard/add-fullcone-nat.sh
