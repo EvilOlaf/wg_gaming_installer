@@ -845,6 +845,114 @@ function addPortForward() {
 
 
 
+function listpfrules() {
+    local lineno=1
+    local ip
+    local port
+
+    if [ ! -f "/etc/wireguard/port_fwd_up.sh" ]; then
+        echo "No port forwarding rules found."
+        return
+    fi
+
+    echo "Listing port forwarding rules:"
+    
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Check if the line contains "--to-destination" and extract the IP and port
+        if [[ $line == *"--to-destination"* ]]; then
+            ip=$(echo "$line" | grep -oP '(?<=--to-destination )[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+            port=$(echo "$line" | grep -oP '(?<=--dport )[^ ]+')
+        fi
+
+        if [ -n "$ip" ] && [ -n "$port" ]; then
+            # Display the IP and port to the user
+            echo "${lineno}. IP: $ip, Port/Range: $port"
+            ((lineno++))
+        fi
+
+        # Read the next line (to skip over the UDP rule)
+        read -r line
+    done < /etc/wireguard/port_fwd_up.sh
+}
+
+function removepfrules() {
+    echo "Current Port Forwarding Rules:"
+    
+    local total_rules=0
+    local lineno=1
+    local count=0
+    while IFS= read -r line; do
+        if [[ $line == *"--to-destination"* ]]; then
+            ((count++))
+            # Only display once for every two lines (TCP and UDP)
+            if (( count % 2 == 1 )); then
+                local ip=$(echo "$line" | grep -oP '(?<=--to-destination )[^:]+')
+                local port_or_range=$(echo "$line" | grep -oP '(?<=--dport )[^ ]+')
+                echo "${lineno}. IP: ${ip}, Port/Range: ${port_or_range}"
+                ((lineno++))
+                ((total_rules++))
+            fi
+        fi
+    done < /etc/wireguard/port_fwd_up.sh
+    
+    # Get the user's choice and validate it
+local choice
+while :; do
+    read -rp "Enter the number of the rule you want to remove (1-$total_rules): " choice
+    if [[ $choice =~ ^[1-$total_rules]$ ]]; then
+        break
+    else
+        echo "Wrong selection. Please choose a number between 1 and $total_rules."
+    fi
+done
+
+    # Calculate the line numbers
+    local line_to_delete=$((choice * 2 - 1)) # for TCP
+    local next_line=$((choice * 2))  # for UDP
+
+    # Delete the lines from port_fwd_up.sh
+    sed -i "${line_to_delete}d" /etc/wireguard/port_fwd_up.sh
+    sed -i "$((next_line - 1))d" /etc/wireguard/port_fwd_up.sh
+
+    # Delete the lines from port_fwd_down.sh
+    sed -i "${line_to_delete}d" /etc/wireguard/port_fwd_down.sh
+    sed -i "$((next_line - 1))d" /etc/wireguard/port_fwd_down.sh
+    
+    echo "Rule removed successfully!"
+}
+
+togglepfall() {
+    WG_CONF="/etc/wireguard/wg0.conf"
+    UP_RULE="/etc/wireguard/port_fwd_up.sh"
+    DOWN_RULE="/etc/wireguard/port_fwd_down.sh"
+
+    # The two lines we want to add or remove
+    LINE1="PostUp = /etc/wireguard/port_fwd_up.sh"
+    LINE2="PostDown = /etc/wireguard/port_fwd_down.sh"
+
+    # First, let's check if the required port forwarding files exist
+    if [[ ! -f $UP_RULE ]] || [[ ! -f $DOWN_RULE ]]; then
+        echo "No port forwarding rules defined. Run option 10 at least once before enabling."
+        return
+    fi
+
+    # Check if the specific lines are already present in the config file
+    if grep -q "^$LINE1$" "$WG_CONF"; then
+        # Remove both PostUp and PostDown rules
+        sed -i "\|^$LINE1$|d" "$WG_CONF"
+        sed -i "\|^$LINE2$|d" "$WG_CONF"
+        echo "Port forwarding rules have been disabled."
+    else
+        # Insert the rules before the "### Client" line in a temporary file and then replace the original file
+        awk -v line1="$LINE1" -v line2="$LINE2" '/^### Client / {print line1; print line2; print; next} 1' "$WG_CONF" > "${WG_CONF}.tmp" && mv "${WG_CONF}.tmp" "$WG_CONF"
+        echo "Port forwarding rules have been enabled."
+    fi
+}
+
+
+
+
+
 
 
 function manageMenu() {
@@ -861,11 +969,14 @@ function manageMenu() {
     echo "   7) Display connected clients"
     echo "   8) Check for updates"
     echo "   9) Add/Remove script to system variable"
-    echo "   10) Add port forwarding rule"
-    echo "   11) Exit"
+    echo "   10) Add Port Forwarding Rule"
+    echo "   11) List Port Forwarding Rules"
+    echo "   12) Remove Port Forwarding Rule"
+    echo "   13) Toggle Port Forwarding for All"
+    echo "   14) Exit"
     
-    until [[ ${MENU_OPTION} =~ ^[1-9]$|^10$|^11$ ]]; do
-        read -rp "Select an option [1-11]: " MENU_OPTION
+    until [[ ${MENU_OPTION} =~ ^[1-9]$|^10$|^11$|^12$|^13$|^14$ ]]; do
+        read -rp "Select an option [1-14]: " MENU_OPTION
     done
     
     case "${MENU_OPTION}" in
@@ -900,6 +1011,15 @@ function manageMenu() {
         addPortForward
         ;;
     11)
+        listpfrules     
+        ;;
+    12)
+        removepfrules   
+        ;;
+    13)
+        togglepfall      
+        ;;
+    14)
         exit 0
         ;;
     esac
