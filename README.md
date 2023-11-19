@@ -37,6 +37,13 @@ It will install WireGuard (kernel module and tools) on the server, configure it,
 Run the script again will give you these options!
 
 
+## Known issues
+
+While IPv4 port forwarding worked perfectly fine for me it did not with IPv6.
+I got this fixed by setting `net.ipv6.conf.all.forwarding=1` at **client** side. 
+This however leads into losing IPv6 access to the client's local network. As for me I do not bother since IPv4 still works.
+
+
 # Usage
 List of know working vps provider :                                                        
 -Hetzner Y  (routed ipv6 prefix can be delegated to client , so they will have a public ipv6 )       
